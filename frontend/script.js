@@ -8,9 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to fetch and display status for a specific area
     async function fetchAreaStatus(areaName) {
+        console.log("Attempting to fetch status for area:", areaName); // DEBUG LOG
         try {
             statusDisplay.innerHTML = `<p>Loading status for ${areaName}...</p>`;
-            const response = await fetch(`<span class="math-inline">\{API\_BASE\_URL\}/areas/</span>{areaName}`);
+            // Ensure areaName is correctly lowercased here as well if the backend expects it strictly
+            // Though backend LOWER() should handle it, consistency helps.
+            const response = await fetch(`${API_BASE_URL}/areas/${areaName.toLowerCase()}`); // Added .toLowerCase() here for consistency
             if (!response.ok) {
                 if (response.status === 404) {
                     statusDisplay.innerHTML = `<p class="status-outage">Area "${areaName}" not found or no status available.</p>`;
@@ -79,10 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             areas.forEach(area => {
                 const areaDiv = document.createElement('div');
+                // Display area name as it is from the database, but store lowercase for search trigger
                 areaDiv.innerHTML = `<strong>${area.name}:</strong> ${area.status}`;
                 areaDiv.addEventListener('click', () => {
-                    searchInput.value = area.name; // Populate search box
-                    fetchAreaStatus(area.name); // Fetch and display details
+                    searchInput.value = area.name; // Populate search box with original case
+                    fetchAreaStatus(area.name); // Fetch and display details using original case
                 });
                 knownAreasList.appendChild(areaDiv);
             });
@@ -133,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`<span class="math-inline">\{API\_BASE\_URL\}/admin/areas/</span>{areaName}`, {
+            const response = await fetch(`${API_BASE_URL}/admin/areas/${areaName.toLowerCase()}`, { // ensure lowercase for admin update too
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -147,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminMessage.textContent = `Success: ${result.message}`;
                 adminMessage.style.color = 'green';
                 loadKnownAreas(); // Reload areas to show updated status
-                fetchAreaStatus(areaName); // Update displayed status if it's the searched one
+                // fetchAreaStatus(areaName); // Update displayed status if it's the searched one - removed as loadKnownAreas will update list
             } else {
                 adminMessage.textContent = `Error: ${result.error || response.statusText}`;
                 adminMessage.style.color = 'red';
