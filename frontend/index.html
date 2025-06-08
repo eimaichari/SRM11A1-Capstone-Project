@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joburg Water Status</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Joburg Water Supply Status</h1>
+
+        <div class="search-section">
+            <input type="text" id="areaSearchInput" placeholder="Enter area name (e.g., Randburg)">
+            <button id="searchButton">Search Status</button>
+        </div>
+
+        <div class="status-display" id="statusDisplay">
+            <p>Search for an area to see its water supply status.</p>
+        </div>
+
+        <h2>Known Areas:</h2>
+        <div id="knownAreasList" class="areas-list">
+            <p>Loading areas...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
