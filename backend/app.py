@@ -1,19 +1,18 @@
 import sqlite3
 from flask import Flask, jsonify, request, g
-from flask_cors import CORS # To allow frontend to talk to backend
+from flask_cors import CORS 
 import os
 
 app = Flask(__name__)
-CORS(app) # Enable CORS for all routes
+CORS(app) 
 
-DATABASE = 'water_status.db' # SQLite database file
+DATABASE = 'water_status.db' 
 
-# --- Database Functions ---
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
-        db.row_factory = sqlite3.Row # Return rows as dicts
+        db.row_factory = sqlite3.Row 
     return db
 
 @app.teardown_appcontext
@@ -36,16 +35,13 @@ def init_db():
             )
         ''')
         db.commit()
-        # Optionally add some initial data if the table is empty
         cursor.execute("INSERT OR IGNORE INTO areas (name, status, details, eta) VALUES (?, ?, ?, ?)", ('randburg', 'Outage', 'Planned Maintenance', '6 PM today'))
         cursor.execute("INSERT OR IGNORE INTO areas (name, status, details, eta) VALUES (?, ?, ?, ?)", ('rosebank', 'Normal', 'All clear', 'N/A'))
         cursor.execute("INSERT OR IGNORE INTO areas (name, status, details, eta) VALUES (?, ?, ?, ?)", ('soweto', 'Low Pressure', 'High demand', 'Expected to improve by 10 PM'))
         db.commit()
 
 
-# --- API Endpoints ---
 
-# GET all areas (or search)
 @app.route('/api/areas', methods=['GET'])
 def get_areas():
     search_query = request.args.get('search', '').lower()
@@ -58,7 +54,6 @@ def get_areas():
     areas = [dict(row) for row in cursor.fetchall()]
     return jsonify(areas)
 
-# GET single area by name (or ID)
 @app.route('/api/areas/<string:area_name>', methods=['GET'])
 def get_area_status(area_name):
     db = get_db()
@@ -69,10 +64,8 @@ def get_area_status(area_name):
         return jsonify(dict(area))
     return jsonify({"error": "Area not found"}), 404
 
-# ADMIN: Update status of an area (Simple Auth for PoC)
 @app.route('/api/admin/areas/<string:area_name>', methods=['PUT'])
 def update_area_status(area_name):
-    # VERY basic PoC authentication - DO NOT USE IN PRODUCTION
     if request.headers.get('X-Admin-Key') != 'YOUR_SECRET_ADMIN_KEY':
         return jsonify({"error": "Unauthorized"}), 401
 
@@ -91,6 +84,5 @@ def update_area_status(area_name):
 
 
 if __name__ == '__main__':
-    # Initialize the database when the app starts (or manually for first run)
     init_db()
-    app.run(debug=True, port=5000) # Run in debug mode for development
+    app.run(debug=True, port=5000) 

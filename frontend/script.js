@@ -11,8 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Attempting to fetch status for area:", areaName); // DEBUG LOG
         try {
             statusDisplay.innerHTML = `<p>Loading status for ${areaName}...</p>`;
-            // Ensure areaName is correctly lowercased here as well if the backend expects it strictly
-            // Though backend LOWER() should handle it, consistency helps.
             const response = await fetch(`${API_BASE_URL}/areas/${areaName.toLowerCase()}`); // Added .toLowerCase() here for consistency
             if (!response.ok) {
                 if (response.status === 404) {
@@ -82,11 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             areas.forEach(area => {
                 const areaDiv = document.createElement('div');
-                // Display area name as it is from the database, but store lowercase for search trigger
                 areaDiv.innerHTML = `<strong>${area.name}:</strong> ${area.status}`;
                 areaDiv.addEventListener('click', () => {
-                    searchInput.value = area.name; // Populate search box with original case
-                    fetchAreaStatus(area.name); // Fetch and display details using original case
+                    searchInput.value = area.name; 
+                    fetchAreaStatus(area.name); 
                 });
                 knownAreasList.appendChild(areaDiv);
             });
@@ -96,11 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    loadKnownAreas(); // Load areas when the page loads
+    loadKnownAreas(); 
 
-    // --- Basic Admin Panel (for testing/demonstration) ---
-    // You might consider a separate HTML file for admin.
-    // For PoC, let's just append it.
     const adminSectionHtml = `
         <div class="admin-section">
             <h2>Admin Panel (PoC Only)</h2>
@@ -137,11 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/areas/${areaName.toLowerCase()}`, { // ensure lowercase for admin update too
+            const response = await fetch(`${API_BASE_URL}/admin/areas/${areaName.toLowerCase()}`, { 
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Admin-Key': 'YOUR_SECRET_ADMIN_KEY' // Replace with your actual key from app.py
+                    'X-Admin-Key': 'YOUR_SECRET_ADMIN_KEY' 
                 },
                 body: JSON.stringify({ status, details, eta })
             });
@@ -150,8 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 adminMessage.textContent = `Success: ${result.message}`;
                 adminMessage.style.color = 'green';
-                loadKnownAreas(); // Reload areas to show updated status
-                // fetchAreaStatus(areaName); // Update displayed status if it's the searched one - removed as loadKnownAreas will update list
+                loadKnownAreas(); 
             } else {
                 adminMessage.textContent = `Error: ${result.error || response.statusText}`;
                 adminMessage.style.color = 'red';
